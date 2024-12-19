@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>在线聊天室</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.21.1/dist/axios.min.js"></script>
+</head>
+<body>
+    <div id="app" class="chat-container">
+        <div class="user-info">
+            欢迎您, {{currentUser}}
+            <button @click="logout">退出</button>
+        </div>
+        <div class="chat-main">
+            <div class="chat-messages" id="messageArea">
+                <div class="message" v-for="msg in messages" :key="msg.id">
+                    <div v-if="msg.type === 'system'" class="system-message">
+                        <em>{{msg.content}}</em>
+                    </div>
+                    <div v-else>
+                        <strong>{{msg.sender}}:</strong> {{msg.content}}
+                    </div>
+                </div>
+            </div>
+            <div class="chat-input">
+                <textarea v-model="messageInput" @keyup.enter.ctrl="sendMessage" 
+                    placeholder="输入消息...(Ctrl+Enter发送)"></textarea>
+                <button @click="sendMessage">发送</button>
+            </div>
+        </div>
+        <div class="online-users">
+            <h3>在线用户</h3>
+            <ul id="userList">
+                <li v-for="user in onlineUsers" :key="user.id" 
+                    :class="['user-item', user.status]">
+                    <span class="user-status"></span>
+                    {{user.name}}
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted, onBeforeUnmount } = Vue;
+
+        createApp({
+            setup() {
+                // 响应式数据
+                const currentUser = ref('未登录');
+                const messages = ref([]);
+                const messageInput = ref('');
+                const onlineUsers = ref([]);
+                const ws = ref(null);
+                const reconnectAttempts = ref(0);
+                const maxReconnectAttempts = 5;
+
+                // 检查登录状态
+                const checkLogin = async () => {
+                    try {
+                        const res = await axios.post('login.action?op=checkLogin');
+                        const json = res.data;
+                        if(json.code == 1) {
+                            currentUser.value = json.data.uname || json.data.account;
+                            initWebSocket();
+                        } else {
+                            window.location.href = 'index.html';
+                        }
+                    } catch (error) {
+                        console.error('登录检查失败:', error);
+                        window.location.href = 'index.html';
+                    }
+                };
+
+                const logout =  () => {
+                    axios.post('login.action?op=logout').then(res => {
+                        const json = res.data;
+                        if (json.code == 1) {
+                            window.location.href = 'index.html';
+                        } else {
+                            alert("退出失败");
+                        }
+                    });
+                };
+
+                // 初始化WebSocket
+                const initWebSocket = () => {
+                    const wsUrl = `ws://${window.location.host}${window.location.pathname.replace('chat.html', '')}/websocket`;
+                    console.log('Connecting to WebSocket:', wsUrl);
+
+                    try {
+                        ws.value = new WebSocket(wsUrl);
+
+                        ws.value.onopen = () => {
+                            console.log('WebSocket连接已建立');
+                            reconnectAttempts.value = 0;
+                            
+                            // 发送初始化消息
+                            const initMessage = {
+                                type: 'init',
+                                username: currentUser.value
+                            };
+                            ws.value.send(JSON.stringify(initMessage));
+                        };
+
+                        ws.value.onmessage = (event) => {
+                            const data = JSON.parse(event.data);
+                            switch(data.type) {
+                                case 'message':
+                                    messages.value.push({
+                                        id: Date.now(),
+                                        type: 'message',
+                                        sender: data.sender,
+                                        content: data.content
+                                    });
+                                    scrollToBottom();
+                                    break;
+                                case 'system':
+                                    messages.value.push({
+                                        id: Date.now(),
+                                        type: 'system',
+                                        content: data.content
+                                    });
+                                    scrollToBottom();
+                                    break;
+                                case 'userList':
+                                    onlineUsers.value = data.users;
+                                    break;
+                            }
+                        };
+
+                        ws.value.onclose = (event) => {
+                            console.log('WebSocket连接已关闭', event);
+                            if (reconnectAttempts.value < maxReconnectAttempts) {
+                                console.log(`尝试重新连接... (${reconnectAttempts.value + 1}/${maxReconnectAttempts})`);
+                                setTimeout(() => {
+                                    reconnectAttempts.value++;
+                                    initWebSocket();
+                                }, 3000);
+                            }
+                        };
+
+                        ws.value.onerror = (error) => {
+                            console.error('WebSocket错误:', error);
+                        };
+
+                    } catch (error) {
+                        console.error('WebSocket连接失败:', error);
+                    }
+                };
+
+                // 发送消息
+                const sendMessage = () => {
+                    if (!messageInput.value.trim()) return;
+
+                    const message = {
+                        type: 'message',
+                        content: messageInput.value.trim()
+                    };
+
+                    ws.value.send(JSON.stringify(message));
+                    messageInput.value = '';
+                };
+
+                // 滚动到底部
+                const scrollToBottom = () => {
+                    setTimeout(() => {
+                        const messageArea = document.getElementById('messageArea');
+                        messageArea.scrollTop = messageArea.scrollHeight;
+                    }, 0);
+                };
+
+                // 生命周期钩子
+                onMounted(() => {
+                    checkLogin();
+                });
+
+                onBeforeUnmount(() => {
+                    if (ws.value) {
+                        ws.value.close();
+                    }
+                });
+
+                // 返回模板需要的数据和方法
+                return {
+                    currentUser,
+                    messages,
+                    messageInput,
+                    onlineUsers,
+                    sendMessage,
+                    logout
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html> 

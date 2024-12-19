@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>欢迎加入我们的聊天室</title>
+    <style>
+        /* 基本样式 */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #e0f7fa;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            width: 100%;
+            max-width: 500px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background-color: #00bfa5;
+            color: #ffffff;
+            text-align: center;
+            padding: 20px;
+        }
+        .header img {
+            width:100px;
+            height: 100px;
+        }
+        .content {
+            padding: 20px;
+            text-align: center;
+            background: url('https://pic.netbian.com/uploads/allimg/241210/231918-17338439584cdf.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #333333;
+        }
+        .content h1 {
+            color: #00bfa5;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        .content p {
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .verification-code {
+            background-color: #00bfa5;
+            color: #ffffff;
+            font-size: 2em;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            display: inline-block;
+        }
+        .content a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #00bfa5;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .footer {
+            background-color: #ebebeb;
+            color: #777777;
+            text-align: center;
+            padding: 10px;
+            font-size: 0.9em;
+        }
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                width: 100% !important;
+                padding: 10px;
+            }
+            .content h1 {
+                font-size: 2em;
+            }
+            .content p {
+                font-size: 1em;
+            }
+            .verification-code {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <!-- 头部 -->
+    <div class="header">
+        <img src="https://pic.imgdb.cn/item/67623b38d0e0a243d4e59bb1.png" alt="聊天室Logo">
+        <h1>欢迎加入我们的聊天室</h1>
+    </div>
+
+    <!-- 主体 -->
+    <div class="content">
+        <h1>亲爱的用户</h1>
+        <p>感谢您注册我们的在线聊天室！为了确保您的账户安全，请使用以下验证码完成注册：</p>
+        <div class="verification-code">{verification_code}</div>
+        <p>如果您没有注册过我们的服务，请忽略这封邮件。</p>
+        <a href="https://yourwebsite.com/verify?code={verification_code}" target="_blank">点击这里验证邮箱</a>
+    </div>
+
+    <!-- 尾部 -->
+    <div class="footer">
+        <p>如果您有任何问题或需要帮助，请联系我们的支持团队：<a href="mailto:support@chatroom.com">support@chatroom.com</a></p>
+        <p>&copy; 2024 聊天室. 保留所有权利。</p>
+    </div>
+</div>
+</body>
+</html>

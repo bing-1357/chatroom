@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>聊天室注册</title>
+    <link rel="stylesheet" href="css/style.css">
+
+</head>
+<body>
+
+    <div class="login-container" id="app">
+        <h2>注册新账号</h2>
+        <div id="registerForm">
+            <div class="form-group">
+                <input type="text" id="username" name="username" placeholder="用户名"
+                       v-model="users.uname"
+                       required>
+            </div>
+            <div class="form-group">
+                <input type="text" id="account" name="account" placeholder="账号"
+                       v-model="users.account"
+                       required>
+            </div>
+            <div class="form-group">
+                <input type="email" id="email" name="email" placeholder="邮箱"
+                       v-model="users.email"
+                       required>
+            </div>
+            <div class="form-group verify-code">
+                <input type="text" id="verifyCode" name="verifyCode" placeholder="验证码"
+                       v-model="users.verifyCode"
+                       required>
+                <button @click="sendEmail" :disabled="isCountingDown" :style="{ cursor: isCountingDown ? 'not-allowed' : 'pointer', backgroundColor: isCountingDown ? '#ccc' : '' }">
+                    {{ isCountingDown ? `${countdown}秒后重新发送` : '发送验证码' }}
+                </button>
+            </div>
+            <div class="form-group">
+                <input type="password" id="password" name="password" placeholder="密码"
+                       v-model="users.pwd"
+                       required>
+            </div>
+            <button @click="register">注册</button>
+        </div>
+        <p>已有账号？<a href="index.html">返回登录</a></p>
+    </div>
+    <script src="js/vue.js"></script>
+    <script src="js/axios.js"></script>
+    <script src="js/comfetti.js" defer></script>
+    <script>
+        const app = new Vue({
+            el: '#app',
+            data: {
+                users: {
+                    uname: '',
+                    account: '',
+                    email: '',
+                    pwd: '',
+                    verifyCode: ''
+                },
+                countdown: 60, // 倒计时时间
+                isCountingDown: false // 是否正在倒计时
+            },
+            methods: {
+                register() {
+                    if(this.users==null){
+                        alert("请填写完整信息");
+                        return;
+                    }
+                    var params = new URLSearchParams(this.users);
+                    axios.post('login.action?op=register', params).then(res => {
+                        console.log(res);
+                        const json = res.data;
+                        if (json.code == 1) {
+                            // this.users.account = '';
+                            // this.users.pwd = '';
+                            // 添加礼花效果
+                            // 添加礼花效果，从页面中心发射
+                            confetti({
+                                particleCount: 600, // 礼花数量
+                                spread: 100,         // 礼花扩散角度
+                                origin: {           // 页面中心位置
+                                    x: 0.5,
+                                    y: 0.5          // 调整 y 值以控制垂直位置
+                                },
+                                zIndex: 9999,       // 确保礼花在最上层
+                                colors: [           // 自定义颜色
+                                    '#ffcc00',
+                                    '#ff6600',
+                                    '#ffcc00',
+                                    '#00bfa5',
+                                    '#ff6600'
+                                ],
+                                shapes: ['star', 'circle'], // 礼花形状
+                                disableForReducedMotion: true // 对于启用了“减少运动”设置的用户禁用效果
+                            });
+
+                            console.log("注册成功");
+
+                            // 延迟3秒后重定向
+                            setTimeout(() => {
+                                window.location.href = 'index.html';
+                            }, 2000); // 2000毫秒 = 2秒
+                        } else {
+                            alert(res.data.msg);
+                        }
+                    });
+
+                },
+                sendEmail(){
+                    if(this.users.email==null){
+                        alert("请填写邮箱");
+                        return;
+                    }
+                    var params = new URLSearchParams();
+                    params.append('email', this.users.email);
+
+                    // 如果已经在倒计时，则不发送验证码
+                    if (this.isCountingDown) return;
+
+                    console.log(this.users.verifyCode);
+                    axios.post('login.action?op=sendEmail', params).then(res => {
+                        console.log(res);
+                        const json = res.data;
+                        if (json.code == 1) {
+                            console.log("发送成功");
+                            // alert("发送成功")
+                            // 启动倒计时
+                            this.startCountdown();
+                        } else {
+                            alert("发送失败");
+                            alert("发送失败");
+                        }
+                    }).catch(error => {
+                        console.error("发送验证码时发生错误:", error);
+                        alert("发送验证码时发生错误，请稍后再试。");
+                    });
+                },
+                startCountdown() {
+                    this.isCountingDown = true;
+
+                    // 开始倒计时
+                    let timer = this.countdown;
+                    const interval = setInterval(() => {
+                        if (timer > 0) {
+                            this.countdown = timer;
+                            timer--;
+                        } else {
+                            clearInterval(interval);
+                            this.isCountingDown = false;
+                            this.countdown = 60; // 重置倒计时
+                        }
+                    }, 1000);
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,392 @@
+/* 通用样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f2f5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+/* 登录和注册页面样式 */
+.login-container {
+    width: 100%;
+    height: 100vh;
+    max-width: none;
+    margin: 0;
+    padding: 40px 20px;
+    background: white;
+    border-radius: 0;
+    box-shadow: none;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+h2 {
+    text-align: center;
+    margin: 40px 0;
+    font-size: 28px;
+}
+
+.form-group {
+    margin-bottom: 25px;
+    padding: 0 15px;
+}
+
+input {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    background: #1877f2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    margin: 15px 15px 0;
+    transition: background-color 0.3s;
+}
+
+/* 移动端适配 */
+@media (min-width: 769px) {
+    /* 在桌面端保持原来的样式 */
+    .login-container {
+        width: 400px;
+        height: auto;
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 30px 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .form-group {
+        padding: 0;
+    }
+
+    button {
+        margin: 15px 0 0;
+    }
+
+    h2 {
+        margin: 0 0 25px;
+        font-size: 24px;
+    }
+}
+
+/* 验证码相关样式 */
+.verify-code {
+    display: flex;
+    gap: 10px;
+    padding: 0 15px;
+}
+
+.verify-code input {
+    flex: 1;
+}
+
+.verify-code button {
+    width: 120px;
+    font-size: 16px;
+    white-space: nowrap;
+    margin: 0;
+    padding: 12px;
+}
+
+/* 移动端验证码按钮适配 */
+@media (max-width: 768px) {
+    .verify-code {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .verify-code button {
+        width: 100%;
+    }
+}
+
+/* 禁用发送验证码按钮样式 */
+.verify-code button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+p {
+    text-align: center;
+    margin-top: 20px;
+}
+
+a {
+    color: #1877f2;
+    text-decoration: none;
+}
+
+/* 聊天室样式 */
+.chat-container {
+    display: flex;
+    min-height: 100vh;
+    padding: 20px;
+    flex-direction: row;
+    gap: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.chat-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    height: calc(100vh - 40px);
+}
+
+.chat-messages {
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    height: calc(100% - 100px);
+    -webkit-overflow-scrolling: touch;
+}
+
+.message {
+    margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 4px;
+    background: #f0f2f5;
+    line-height: 1.4;
+    word-break: break-word;
+    max-width: 85%;
+}
+
+.system-message {
+    background: #fff3cd;
+    color: #856404;
+    font-size: 0.9em;
+    text-align: center;
+}
+
+.user-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.user-status {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.user-item.active .user-status {
+    background-color: #28a745;
+}
+
+.user-item.idle .user-status {
+    background-color: #ffc107;
+}
+
+.chat-input {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    height: 80px;
+    position: relative;
+}
+
+.chat-input textarea {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: none;
+    height: 100%;
+    font-size: 16px;
+}
+
+.chat-input button {
+    width: 100px;
+    height: 100%;
+}
+
+.online-users {
+    width: 200px;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    flex-shrink: 0;
+    height: calc(100vh - 40px);
+    overflow-y: auto;
+}
+
+.online-users ul {
+    list-style: none;
+}
+
+.online-users li {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    word-break: break-all;
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+    .chat-container {
+        flex-direction: column;
+        padding: 10px;
+        height: 100vh;
+    }
+
+    .chat-main {
+        height: calc(100vh - 200px);
+        order: 2;
+    }
+
+    .online-users {
+        width: 100%;
+        order: 1;
+        height: 150px;
+        margin-bottom: 10px;
+    }
+
+    .online-users ul {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .online-users li {
+        border: 1px solid #eee;
+        padding: 5px 10px;
+        border-radius: 20px;
+        margin: 0;
+        white-space: nowrap;
+    }
+
+    .chat-input {
+        height: 60px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 10px;
+        background: #fff;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .chat-input button {
+        width: 70px;
+        height: 100%;
+    }
+
+    .chat-messages {
+        height: calc(100% - 80px);
+        margin-bottom: 70px;
+    }
+
+    .message {
+        max-width: 90%;
+        font-size: 15px;
+    }
+}
+
+/* 针对更小屏幕的优化 */
+@media (max-width: 480px) {
+    .chat-container {
+        padding: 5px;
+    }
+
+    .chat-messages {
+        padding: 10px;
+    }
+
+    .message {
+        max-width: 95%;
+        padding: 6px 8px;
+    }
+
+    .online-users {
+        padding: 10px;
+        height: 120px;
+    }
+
+    .online-users li {
+        font-size: 14px;
+        padding: 4px 8px;
+    }
+}
+
+/* 针对iPhone刘海屏的优化 */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    @media (max-width: 768px) {
+        .chat-input {
+            padding-bottom: calc(10px + env(safe-area-inset-bottom));
+        }
+
+        .chat-messages {
+            margin-bottom: calc(70px + env(safe-area-inset-bottom));
+        }
+    }
+}
+
+/* 暗色模式支持 */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #18191a;
+        color: #e4e6eb;
+    }
+
+    .login-container,
+    .chat-messages,
+    .online-users {
+        background: #242526;
+        color: #e4e6eb;
+    }
+
+    input,
+    textarea {
+        background: #3a3b3c;
+        border-color: #3a3b3c;
+        color: #e4e6eb;
+    }
+
+    .message {
+        background: #3a3b3c;
+    }
+
+    .online-users li {
+        border-color: #3a3b3c;
+    }
+
+    .system-message {
+        background: #2c2a1c;
+        color: #fff3cd;
+    }
+
+    .chat-input {
+        background: #242526;
+    }
+}
+  /*</rewritten_file>*/
