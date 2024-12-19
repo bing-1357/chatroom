@@ -49,10 +49,10 @@ src/
 │ ├── index.html
 │ └── register.html
 ```
-
+![index](image.png)
 ## 在线使用
 
--访问 `8.134.145.163/chat`
+-[访问地址](8.134.145.163/chat)
 -注册账号
 -登录
 -开始聊天
