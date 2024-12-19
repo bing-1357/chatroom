@@ -27,3 +27,32 @@
 - Servlet
 
 ## 项目结构 
+```
+src/
+├── main/
+│ ├── java/
+│ │ └── com/
+│ │ └── yc/
+│ │ └── chatroot/
+│ │ └── web/
+│ │ └── controller/
+│ │ └── webSocketServlet.java
+│ └── webapp/
+│ ├── css/
+│ │ ├── chat.css
+│ │ ├── login.css
+│ │ ├── register.css
+│ │ └── style.css
+│ ├── WEB-INF/
+│ │ └── web.xml
+│ ├── chat.html
+│ ├── index.html
+│ └── register.html
+```
+
+## 在线使用
+
+-访问 `8.134.145.163/chat`
+-注册账号
+-登录
+-开始聊天
