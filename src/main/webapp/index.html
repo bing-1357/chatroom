@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>聊天室登录</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
 </head>
 <body>
 
@@ -27,7 +28,10 @@
             <p>还没有账号？<a href="register.html">立即注册</a></p>
         </div>
 
-    <script src="js/vue.js"></script>
+        <!-- 引入 Vue 2 -->
+        <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+        <!-- 引入 Element UI 的 JS -->
+        <script src="https://unpkg.com/element-ui/lib/index.js"></script>
     <script src="js/axios.js"></script>
     <script>
         const app = new Vue({
@@ -46,8 +50,16 @@
                         const json = res.data;
                         if (json.code == 1) {
                             window.location.href = 'chat.html';
+                            this.$message({
+                                message: '登录成功,欢迎进入聊天室',
+                                type: 'success'
+                            });
+
                         } else {
-                            alert("登录失败");
+                            this.$message({
+                                message: '登录失败,请查看账号密码后登录',
+                                type: 'error'
+                            });
                         }
                     });
                 }

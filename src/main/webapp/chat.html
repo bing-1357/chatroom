@@ -6,6 +6,9 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios@0.21.1/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入 Element UI 的 JS -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
 </head>
 <body>
     <div id="app" class="chat-container">
@@ -55,7 +58,7 @@
                 const ws = ref(null);
                 const reconnectAttempts = ref(0);
                 const maxReconnectAttempts = 5;
-
+                let messagess = JSON.parse(localStorage.getItem('chatMessages')) || [];
                 // 检查登录状态
                 const checkLogin = async () => {
                     try {
@@ -162,6 +165,14 @@
                     ws.value.send(JSON.stringify(message));
                     messageInput.value = '';
                 };
+                const sendMessageToAll = () => {
+                    const h = this.$createElement;
+                    this.$notify({
+                        title: '登录成功',
+                        message: h('i', { style: 'color: teal' }, '欢迎用户'+currentUser.value+'加入聊天室'+
+                            ',请在下方输入聊天内容')
+                    });
+                };
 
                 // 滚动到底部
                 const scrollToBottom = () => {
@@ -171,9 +182,14 @@
                     }, 0);
                 };
 
+                const storageData = () => {
+
+                };
+
                 // 生命周期钩子
                 onMounted(() => {
                     checkLogin();
+                    sendMessageToAll();
                 });
 
                 onBeforeUnmount(() => {

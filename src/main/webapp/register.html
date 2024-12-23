@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>聊天室注册</title>
     <link rel="stylesheet" href="css/style.css">
-
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
 </head>
 <body>
 
@@ -43,7 +43,10 @@
         </div>
         <p>已有账号？<a href="index.html">返回登录</a></p>
     </div>
-    <script src="js/vue.js"></script>
+    <!-- 引入 Vue 2 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <!-- 引入 Element UI 的 JS -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
     <script src="js/axios.js"></script>
     <script src="js/comfetti.js" defer></script>
     <script>
@@ -63,7 +66,10 @@
             methods: {
                 register() {
                     if(this.users==null){
-                        alert("请填写完整信息");
+                        this.$message({
+                            message: "请填写完整信息",
+                            type:'error'
+                        });
                         return;
                     }
                     var params = new URLSearchParams(this.users);
@@ -71,8 +77,6 @@
                         console.log(res);
                         const json = res.data;
                         if (json.code == 1) {
-                            // this.users.account = '';
-                            // this.users.pwd = '';
                             // 添加礼花效果
                             // 添加礼花效果，从页面中心发射
                             confetti({
@@ -94,7 +98,10 @@
                                 disableForReducedMotion: true // 对于启用了“减少运动”设置的用户禁用效果
                             });
 
-                            console.log("注册成功");
+                            this.$message({
+                                message: '注册成功,请登录',
+                                type:'success'
+                            });
 
                             // 延迟3秒后重定向
                             setTimeout(() => {
@@ -108,7 +115,10 @@
                 },
                 sendEmail(){
                     if(this.users.email==null){
-                        alert("请填写邮箱");
+                        this.$message({
+                            message: "请填写邮箱",
+                            type:'error'
+                        });
                         return;
                     }
                     var params = new URLSearchParams();
@@ -122,17 +132,24 @@
                         console.log(res);
                         const json = res.data;
                         if (json.code == 1) {
-                            console.log("发送成功");
-                            // alert("发送成功")
+                            this.$message({
+                                message: "验证码已发送",
+                                type:'success'
+                            });
                             // 启动倒计时
                             this.startCountdown();
                         } else {
-                            alert("发送失败");
-                            alert("发送失败");
+                            this.$message({
+                                message: "邮箱发送失败",
+                                type:'error'
+                            });
                         }
                     }).catch(error => {
                         console.error("发送验证码时发生错误:", error);
-                        alert("发送验证码时发生错误，请稍后再试。");
+                        this.$message({
+                            message: "发送验证码失败",
+                            type:'error'
+                        });
                     });
                 },
                 startCountdown() {
