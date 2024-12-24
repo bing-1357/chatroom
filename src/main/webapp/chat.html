@@ -87,7 +87,7 @@
                     });
                 };
 
-                // 初始化WebSocket
+                // 初始化WebSocket连接
                 const initWebSocket = () => {
                     const wsUrl = `ws://${window.location.host}${window.location.pathname.replace('chat.html', '')}/websocket`;
                     console.log('Connecting to WebSocket:', wsUrl);
@@ -95,11 +95,13 @@
                     try {
                         ws.value = new WebSocket(wsUrl);
 
+                        // 当WebSocket连接建立时触发
                         ws.value.onopen = () => {
                             console.log('WebSocket连接已建立');
+                            // 重置重连次数
                             reconnectAttempts.value = 0;
                             
-                            // 发送初始化消息
+                            // 发送初始化消息，告知服务器当前用户信息
                             const initMessage = {
                                 type: 'init',
                                 username: currentUser.value
@@ -107,19 +109,21 @@
                             ws.value.send(JSON.stringify(initMessage));
                         };
 
+                        // 处理接收到的消息
                         ws.value.onmessage = (event) => {
                             const data = JSON.parse(event.data);
+                            // 根据消息类型进行不同处理
                             switch(data.type) {
-                                case 'message':
+                                case 'message': // 普通聊天消息
                                     messages.value.push({
                                         id: Date.now(),
                                         type: 'message',
                                         sender: data.sender,
                                         content: data.content
                                     });
-                                    scrollToBottom();
+                                    scrollToBottom(); // 滚动到底部
                                     break;
-                                case 'system':
+                                case 'system': // 系统消息（如用户加入/退出）
                                     messages.value.push({
                                         id: Date.now(),
                                         type: 'system',
@@ -127,23 +131,26 @@
                                     });
                                     scrollToBottom();
                                     break;
-                                case 'userList':
+                                case 'userList': // 在线用户列表更新
                                     onlineUsers.value = data.users;
                                     break;
                             }
                         };
 
+                        // 处理WebSocket连接关闭事件
                         ws.value.onclose = (event) => {
                             console.log('WebSocket连接已关闭', event);
+                            // 如果重连次数未超过最大限制，尝试重新连接
                             if (reconnectAttempts.value < maxReconnectAttempts) {
                                 console.log(`尝试重新连接... (${reconnectAttempts.value + 1}/${maxReconnectAttempts})`);
                                 setTimeout(() => {
                                     reconnectAttempts.value++;
-                                    initWebSocket();
-                                }, 3000);
+                                    initWebSocket(); // 重新初始化WebSocket连接
+                                }, 3000); // 3秒后重试
                             }
                         };
 
+                        // 处理WebSocket错误
                         ws.value.onerror = (error) => {
                             console.error('WebSocket错误:', error);
                         };

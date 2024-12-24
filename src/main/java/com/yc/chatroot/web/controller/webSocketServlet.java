@@ -1,19 +1,13 @@
 package com.yc.chatroot.web.controller;
 
 import com.google.gson.Gson;
+import com.yc.chatroot.utils.MessageQueueManager;
+import com.yc.chatroot.utils.MessageQueueManager.MessageType;
+import com.yc.chatroot.utils.MessageQueueManager.QueueMessage;
 
-import jakarta.websocket.OnClose;
-import jakarta.websocket.OnMessage;
-import jakarta.websocket.OnOpen;
-import jakarta.websocket.Session;
+import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;
-
-import javax.websocket.OnError;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @ServerEndpoint("/websocket")
@@ -22,7 +16,11 @@ public class webSocketServlet {
     private static final Map<String, String> usernames = new ConcurrentHashMap<>();
     private static final Gson gson = new Gson();
 
-    // 添加日志
+    // 获取所有会话
+    public static Map<String, Session> getSessions() {
+        return sessions;
+    }
+
     private static void log(String message) {
         System.out.println("[WebSocket] " + message);
     }
@@ -38,9 +36,11 @@ public class webSocketServlet {
             Map<String, Object> message = new HashMap<>();
             message.put("type", "system");
             message.put("content", "欢迎加入聊天室！");
-            sendMessage(session, message);
 
-            // 广播新用户加入消息
+            // 使用消息队列发送欢迎消息
+            MessageQueueManager.enqueueMessage(
+                    new QueueMessage(MessageType.SYSTEM, message, session));
+
             broadcastUserList();
         } catch (Exception e) {
             log("Error in onOpen: " + e.getMessage());
@@ -64,7 +64,10 @@ public class webSocketServlet {
                 Map<String, Object> systemMessage = new HashMap<>();
                 systemMessage.put("type", "system");
                 systemMessage.put("content", username + " 加入了聊天室");
-                broadcast(systemMessage);
+
+                // 广播用户加入消息
+                MessageQueueManager.enqueueMessage(
+                        new QueueMessage(MessageType.SYSTEM, systemMessage, null));
 
                 broadcastUserList();
             } else if ("message".equals(type)) {
@@ -75,7 +78,10 @@ public class webSocketServlet {
                 chatMessage.put("type", "message");
                 chatMessage.put("sender", username);
                 chatMessage.put("content", content);
-                broadcast(chatMessage);
+
+                // 广播聊天消息
+                MessageQueueManager.enqueueMessage(
+                        new QueueMessage(MessageType.CHAT, chatMessage, null));
             }
         } catch (Exception e) {
             log("Error processing message: " + e.getMessage());
@@ -96,7 +102,10 @@ public class webSocketServlet {
             Map<String, Object> message = new HashMap<>();
             message.put("type", "system");
             message.put("content", username + " 离开了聊天室");
-            broadcast(message);
+
+            // 广播用户离开消息
+            MessageQueueManager.enqueueMessage(
+                    new QueueMessage(MessageType.SYSTEM, message, null));
         }
 
         broadcastUserList();
@@ -107,31 +116,6 @@ public class webSocketServlet {
         String sessionId = session.getId();
         log("Error in session " + sessionId + ": " + error.getMessage());
         error.printStackTrace();
-    }
-
-    private void broadcast(Map<String, Object> message) {
-        String jsonMessage = gson.toJson(message);
-        log("Broadcasting: " + jsonMessage);
-
-        for (Session session : sessions.values()) {
-            try {
-                if (session.isOpen()) {
-                    session.getBasicRemote().sendText(jsonMessage);
-                }
-            } catch (IOException e) {
-                log("Error broadcasting to session " + session.getId() + ": " + e.getMessage());
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void sendMessage(Session session, Map<String, Object> message) {
-        try {
-            session.getBasicRemote().sendText(gson.toJson(message));
-        } catch (IOException e) {
-            log("Error sending message to session " + session.getId() + ": " + e.getMessage());
-            e.printStackTrace();
-        }
     }
 
     private void broadcastUserList() {
@@ -148,6 +132,9 @@ public class webSocketServlet {
         }
 
         message.put("users", users);
-        broadcast(message);
+
+        // 广播用户列表
+        MessageQueueManager.enqueueMessage(
+                new QueueMessage(MessageType.USER_LIST, message, null));
     }
 }
